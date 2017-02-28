@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>3D Graphing</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.9.3/math.min.js"></script>
+    <script src="3DGrapher.js"></script>
+
+</head>
+<body ng-app="graphApp">
+<div id="container" ng-controller="graphAppController">
+    <label>Function</label>
+    <input type="text" ng-init="formula='x^2+y^2'" ng-model="formula">
+    <div id="minMax">
+        <label>xmin</label><input type="text" ng-init="xmin='-1'" ng-model="xmin" required>
+        <label>xmax</label><input type="text" ng-init="xmax='1'" ng-model="xmax" required><br>
+        <label>ymin</label><input type="text" ng-init="ymin='-1'" ng-model="ymin" required>
+        <label>ymax</label><input type="text" ng-init="ymax='1'" ng-model="ymax" required>
+    </div>
+    <input type="button" value="Graph" class="btn btn-primary" ng-click="graphFunction()">
+</div>
+<div id="graph" style="width:100%;height:100%;"></div>
+</body>
+</html>
