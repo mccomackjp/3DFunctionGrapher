@@ -16,6 +16,20 @@ app.controller("graphAppController", function ($scope){
         let yCoords = [];
         let zCoords = [];
         let colors = [];
+        buildPoints(xCoords, yCoords, zCoords, colors, $scope.formula1);
+        let data=[buildTrace(xCoords, yCoords, zCoords, colors, "Viridis", $scope.formula1)];
+        if ($scope.formula2 !== undefined) {
+            xCoords = [];
+            yCoords = [];
+            zCoords = [];
+            colors = [];
+            buildPoints(xCoords, yCoords, zCoords, colors, $scope.formula2);
+            data.push(buildTrace(xCoords, yCoords, zCoords, colors, "Greys", $scope.formula2));
+        }
+        Plotly.newPlot('graph', data);
+    };
+
+    let buildPoints = function(xCoords, yCoords, zCoords, colors, formula){
         let xmax = parseFloat($scope.xmax);
         let ymax = parseFloat($scope.ymax);
         let incrimentX = (Math.abs(parseFloat($scope.xmin)) + Math.abs(parseFloat($scope.xmax))) * 0.01;
@@ -24,40 +38,31 @@ app.controller("graphAppController", function ($scope){
         for (let x = parseFloat($scope.xmin); x <xmax; x += incrimentX){
             for (let y = parseFloat($scope.ymin); y < ymax; y += incrimentY){
                 let scope = {x: x, y: y};
-                xCoords.push(x);
-                yCoords.push(y);
-                let z = math.eval($scope.formula, scope);
-                zCoords.push(z);
-                colors.push(z);
+                let z = math.eval(formula, scope);
+                if (z < $scope.zmax && z > $scope.zmin){
+                    xCoords.push(x);
+                    yCoords.push(y);
+                    zCoords.push(z);
+                    colors.push(z);
+                }
             }
         }
+    };
 
-        let data=[
-            {
-                type: 'scatter3d',
-                x: xCoords,
-                y: yCoords,
-                z: zCoords,
-                mode: 'markers',
-                marker: {
-                    size: 6,
-                    //symbol: "circle-open",
-                    // color: colors,
-                    // colorscale: 'Viridis'
-                },
-                projection: {
-                    x: {
-                        show: false
-                    },
-                    y: {
-                        show: false
-                    },
-                    z: {
-                        show: false
-                    }
-                },
+    let buildTrace = function(xCoords, yCoords, zCoords, colors, colorScale, name){
+        return {
+            name: name,
+            type: 'scatter3d',
+            x: xCoords,
+            y: yCoords,
+            z: zCoords,
+            mode: 'markers',
+            marker: {
+                size: 6,
+                color: colors,
+                colorscale: colorScale
             }
-        ];
-        Plotly.newPlot('graph', data);
-    }
+        }
+    };
+
 });
