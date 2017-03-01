@@ -18,6 +18,7 @@ app.controller("graphAppController", function ($scope){
         let colors = [];
         buildPoints(xCoords, yCoords, zCoords, colors, $scope.formula1);
         let data=[buildTrace(xCoords, yCoords, zCoords, colors, "Viridis", $scope.formula1)];
+
         if ($scope.formula2 !== undefined) {
             xCoords = [];
             yCoords = [];
@@ -26,6 +27,7 @@ app.controller("graphAppController", function ($scope){
             buildPoints(xCoords, yCoords, zCoords, colors, $scope.formula2);
             data.push(buildTrace(xCoords, yCoords, zCoords, colors, "Greys", $scope.formula2));
         }
+
         Plotly.newPlot('graph', data);
     };
 
@@ -35,9 +37,10 @@ app.controller("graphAppController", function ($scope){
         let incrimentX = (Math.abs(parseFloat($scope.xmin)) + Math.abs(parseFloat($scope.xmax))) * 0.01;
         let incrimentY = (Math.abs(parseFloat($scope.ymin)) + Math.abs(parseFloat($scope.ymax))) * 0.01;
 
+        let context = parseContext(formula);
         for (let x = parseFloat($scope.xmin); x <xmax; x += incrimentX){
             for (let y = parseFloat($scope.ymin); y < ymax; y += incrimentY){
-                let scope = {x: x, y: y};
+                let scope = buildScope(context, x, y);
                 let z = math.eval(formula, scope);
                 if (evalRange(z, $scope.zmin, $scope.zmax)){
                     xCoords.push(x);
@@ -47,6 +50,21 @@ app.controller("graphAppController", function ($scope){
                 }
             }
         }
+    };
+
+    let parseContext = function(formula){
+      formula = formula.replace(" ", "").toLowerCase();
+      return (formula.length > 1 && (formula[0] === "x" || formula[0] === "y") && formula[1] === "=") ? formula[0] : "z";
+    };
+
+    let buildScope = function (context, i, j){
+        let scope = {x: i, y: j};
+        switch (context) {
+            case 'x' : scope = {z: i, y: j};
+            break;
+            case 'y' : scope = {x: i, z: j};
+        }
+        return scope;
     };
 
     let evalRange = function(num, min, max){

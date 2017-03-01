@@ -16,7 +16,7 @@
 
 <div id="container" ng-controller="graphAppController">
     <label>Function one</label>
-    <input type="text" ng-init="formula1='x^2+y^2'" ng-model="formula1" required>
+    <input type="text" ng-init="formula1='x^2+y^2'" ng-model="formula1" required><br>
     <label>Function two</label>
     <input type="text" ng-model="formula2">
     <div id="minMax">
@@ -27,7 +27,8 @@
         <label>zmin</label><input type="text" ng-init="zmin='auto'" ng-model="zmin" required>
         <label>zmax</label><input type="text" ng-init="zmax='auto'" ng-model="zmax" required>
     </div>
-    <input type="button" value="Graph" class="btn btn-primary" ng-click="graphFunction()">
+    <input type="button" value="Graph" class="btn btn-primary" ng-click="graphFunction()"><br>
+    <label ng-model="errorMessage"></label>
 </div>
 </body>
 </html>
