@@ -39,7 +39,7 @@ app.controller("graphAppController", function ($scope){
             for (let y = parseFloat($scope.ymin); y < ymax; y += incrimentY){
                 let scope = {x: x, y: y};
                 let z = math.eval(formula, scope);
-                if (z < $scope.zmax && z > $scope.zmin){
+                if (evalRange(z, $scope.zmin, $scope.zmax)){
                     xCoords.push(x);
                     yCoords.push(y);
                     zCoords.push(z);
@@ -47,6 +47,18 @@ app.controller("graphAppController", function ($scope){
                 }
             }
         }
+    };
+
+    let evalRange = function(num, min, max){
+        let result = true;
+        if (!isNaN(min) && !isNaN(max)){
+            result = num >= min && num <= max;
+        } else if (!isNaN(min)){
+            result = num >= min;
+        } else if (!isNaN(max)){
+            result = num <= max;
+        }
+        return result;
     };
 
     let buildTrace = function(xCoords, yCoords, zCoords, colors, colorScale, name){
