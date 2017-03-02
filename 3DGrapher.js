@@ -14,6 +14,8 @@ app.controller("graphAppController", function ($scope){
     //todo add intersection display
     //todo add bounded functions
 
+    let pointDistanceScalar = 0.01;
+
     $scope.graphFunction = function(){
         let xCoords = [];
         let yCoords = [];
@@ -42,26 +44,27 @@ app.controller("graphAppController", function ($scope){
       }
     };
 
+    //todo
     $scope.graphIntersection = function(){
-        
+        //todo
     };
 
     let buildPointsFromContext = function(xCoords, yCoords, zCoords, colors, formula, context){
         if (context === "x"){
             buildPoints(xCoords, yCoords, zCoords, colors, formula, context, parseFloat($scope.zmax), parseFloat($scope.zmin),
                 parseFloat($scope.ymax), parseFloat($scope.ymin), parseFloat($scope.xmax), parseFloat($scope.xmin),
-                (Math.abs(parseFloat($scope.zmin)) + Math.abs(parseFloat($scope.zmax))) * 0.01,
-                (Math.abs(parseFloat($scope.ymin)) + Math.abs(parseFloat($scope.ymax))) * 0.01);
+                (Math.abs(parseFloat($scope.zmin)) + Math.abs(parseFloat($scope.zmax))) * pointDistanceScalar,
+                (Math.abs(parseFloat($scope.ymin)) + Math.abs(parseFloat($scope.ymax))) * pointDistanceScalar);
         } else if (context === "y"){
             buildPoints(xCoords, yCoords, zCoords, colors, formula, context, parseFloat($scope.xmax), parseFloat($scope.xmin),
                 parseFloat($scope.zmax), parseFloat($scope.zmin), parseFloat($scope.ymax), parseFloat($scope.ymin),
-                (Math.abs(parseFloat($scope.xmin)) + Math.abs(parseFloat($scope.xmax))) * 0.01,
-                (Math.abs(parseFloat($scope.zmin)) + Math.abs(parseFloat($scope.zmax))) * 0.01);
+                (Math.abs(parseFloat($scope.xmin)) + Math.abs(parseFloat($scope.xmax))) * pointDistanceScalar,
+                (Math.abs(parseFloat($scope.zmin)) + Math.abs(parseFloat($scope.zmax))) * pointDistanceScalar);
         } else {
             buildPoints(xCoords, yCoords, zCoords, colors, formula, context, parseFloat($scope.xmax), parseFloat($scope.xmin),
                 parseFloat($scope.ymax), parseFloat($scope.ymin), parseFloat($scope.zmax), parseFloat($scope.zmin),
-                (Math.abs(parseFloat($scope.xmin)) + Math.abs(parseFloat($scope.xmax))) * 0.01,
-                (Math.abs(parseFloat($scope.ymin)) + Math.abs(parseFloat($scope.ymax))) * 0.01);
+                (Math.abs(parseFloat($scope.xmin)) + Math.abs(parseFloat($scope.xmax))) * pointDistanceScalar,
+                (Math.abs(parseFloat($scope.ymin)) + Math.abs(parseFloat($scope.ymax))) * pointDistanceScalar);
         }
     };
 
@@ -122,18 +125,15 @@ app.controller("graphAppController", function ($scope){
     };
 
     let addTraceCoordinates = function(trace, xCoords, yCoords, zCoords, context){
+        trace["x"] = xCoords;
+        trace["y"] = yCoords;
+        trace["z"] = zCoords;
         if (context === "x"){
             trace["x"] = zCoords;
-            trace["y"] = yCoords;
             trace["z"] = xCoords;
         } else if (context === "y"){
-            trace["x"] = xCoords;
             trace["y"] = zCoords;
             trace["z"] = yCoords;
-        } else {
-            trace["x"] = xCoords;
-            trace["y"] = yCoords;
-            trace["z"] = zCoords;
         }
         return trace;
     };
