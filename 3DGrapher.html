@@ -27,7 +27,8 @@
         <label>zmin</label><input type="text" ng-init="zmin='-2'" ng-model="zmin" ng-keypress="keyPressed($event)" required>
         <label>zmax</label><input type="text" ng-init="zmax='2'" ng-model="zmax" ng-keypress="keyPressed($event)" required>
     </div>
-    <input type="button" value="Graph" class="btn btn-primary" ng-click="graphFunction()"><br>
+    <input type="button" value="Graph" class="btn btn-primary" ng-click="graphFunction()">
+    <input type="button" value="Graph Intersect" class="btn btn-primary" ng-click="graphIntersection()"><br>
     <label ng-model="errorMessage"></label>
 </div>
 </body>

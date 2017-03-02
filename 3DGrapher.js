@@ -42,6 +42,10 @@ app.controller("graphAppController", function ($scope){
       }
     };
 
+    $scope.graphIntersection = function(){
+        
+    };
+
     let buildPointsFromContext = function(xCoords, yCoords, zCoords, colors, formula, context){
         if (context === "x"){
             buildPoints(xCoords, yCoords, zCoords, colors, formula, context, parseFloat($scope.zmax), parseFloat($scope.zmin),
