@@ -16,35 +16,50 @@ app.controller("graphAppController", function ($scope){
         let yCoords = [];
         let zCoords = [];
         let colors = [];
-        buildPoints(xCoords, yCoords, zCoords, colors, $scope.formula1);
-        let data=[buildTrace(xCoords, yCoords, zCoords, colors, "Viridis", $scope.formula1)];
+
+        let context = parseContext($scope.formula1);
+        buildPointsOnContext(xCoords, yCoords, zCoords, colors, $scope.formula1, context);
+        let data=[buildTrace(xCoords, yCoords, zCoords, colors, "Viridis", $scope.formula1, context)];
 
         if ($scope.formula2 !== undefined) {
             xCoords = [];
             yCoords = [];
             zCoords = [];
             colors = [];
-            buildPoints(xCoords, yCoords, zCoords, colors, $scope.formula2);
-            data.push(buildTrace(xCoords, yCoords, zCoords, colors, "Greys", $scope.formula2));
+            context = parseContext($scope.formula2);
+            buildPointsOnContext(xCoords, yCoords, zCoords, colors, $scope.formula2, context);
+            data.push(buildTrace(xCoords, yCoords, zCoords, colors, "Greys", $scope.formula2, context));
         }
-
         Plotly.newPlot('graph', data);
     };
 
-    let buildPoints = function(xCoords, yCoords, zCoords, colors, formula){
-        let xmax = parseFloat($scope.xmax);
-        let ymax = parseFloat($scope.ymax);
-        let incrimentX = (Math.abs(parseFloat($scope.xmin)) + Math.abs(parseFloat($scope.xmax))) * 0.01;
-        let incrimentY = (Math.abs(parseFloat($scope.ymin)) + Math.abs(parseFloat($scope.ymax))) * 0.01;
+    let buildPointsOnContext = function(xCoords, yCoords, zCoords, colors, formula, context){
+        if (context === "x"){
+            buildPoints(xCoords, yCoords, zCoords, colors, formula, context, parseFloat($scope.zmax), parseFloat($scope.zmin),
+                parseFloat($scope.ymax), parseFloat($scope.ymin), parseFloat($scope.xmax), parseFloat($scope.xmin),
+                (Math.abs(parseFloat($scope.zmin)) + Math.abs(parseFloat($scope.zmax))) * 0.01,
+                (Math.abs(parseFloat($scope.ymin)) + Math.abs(parseFloat($scope.ymax))) * 0.01);
+        } else if (context === "y"){
+            buildPoints(xCoords, yCoords, zCoords, colors, formula, context, parseFloat($scope.xmax), parseFloat($scope.xmin),
+                parseFloat($scope.zmax), parseFloat($scope.zmin), parseFloat($scope.ymax), parseFloat($scope.ymin),
+                (Math.abs(parseFloat($scope.xmin)) + Math.abs(parseFloat($scope.xmax))) * 0.01,
+                (Math.abs(parseFloat($scope.zmin)) + Math.abs(parseFloat($scope.zmax))) * 0.01);
+        } else {
+            buildPoints(xCoords, yCoords, zCoords, colors, formula, context, parseFloat($scope.xmax), parseFloat($scope.xmin),
+                parseFloat($scope.ymax), parseFloat($scope.ymin), parseFloat($scope.zmax), parseFloat($scope.zmin),
+                (Math.abs(parseFloat($scope.xmin)) + Math.abs(parseFloat($scope.xmax))) * 0.01,
+                (Math.abs(parseFloat($scope.ymin)) + Math.abs(parseFloat($scope.ymax))) * 0.01);
+        }
+    };
 
-        let context = parseContext(formula);
-        for (let x = parseFloat($scope.xmin); x <xmax; x += incrimentX){
-            for (let y = parseFloat($scope.ymin); y < ymax; y += incrimentY){
-                let scope = buildScope(context, x, y);
+    let buildPoints = function(xCoords, yCoords, zCoords, colors, formula, context, xmax, xmin, ymax, ymin, zmax, zmin, incrimentX, incrimentY){
+        for (let i = xmin; i <xmax; i += incrimentX){
+            for (let j = ymin; j < ymax; j += incrimentY){
+                let scope = buildScope(context, i, j);
                 let z = math.eval(formula, scope);
-                if (evalRange(z, $scope.zmin, $scope.zmax)){
-                    xCoords.push(x);
-                    yCoords.push(y);
+                if (evalRange(z, zmin, zmax)){
+                    xCoords.push(i);
+                    yCoords.push(j);
                     zCoords.push(z);
                     colors.push(z);
                 }
@@ -79,20 +94,35 @@ app.controller("graphAppController", function ($scope){
         return result;
     };
 
-    let buildTrace = function(xCoords, yCoords, zCoords, colors, colorScale, name){
-        return {
+    let buildTrace = function(xCoords, yCoords, zCoords, colors, colorScale, name, context){
+        let trace = {
             name: name,
             type: 'scatter3d',
-            x: xCoords,
-            y: yCoords,
-            z: zCoords,
             mode: 'markers',
             marker: {
                 size: 6,
                 color: colors,
                 colorscale: colorScale
             }
+        };
+        return addTraceCoordinates(trace, xCoords, yCoords, zCoords, context);
+    };
+
+    let addTraceCoordinates = function(trace, xCoords, yCoords, zCoords, context){
+        if (context === "x"){
+            trace["x"] = zCoords;
+            trace["y"] = yCoords;
+            trace["z"] = xCoords;
+        } else if (context === "y"){
+            trace["x"] = xCoords;
+            trace["y"] = zCoords;
+            trace["z"] = yCoords;
+        } else {
+            trace["x"] = xCoords;
+            trace["y"] = yCoords;
+            trace["z"] = zCoords;
         }
+        return trace;
     };
 
 });
