@@ -11,6 +11,9 @@ window.onload = function () {
 
 app.controller("graphAppController", function ($scope){
 
+    //todo add intersection display
+    //todo add bounded functions
+
     $scope.graphFunction = function(){
         let xCoords = [];
         let yCoords = [];
@@ -18,7 +21,7 @@ app.controller("graphAppController", function ($scope){
         let colors = [];
 
         let context = parseContext($scope.formula1);
-        buildPointsOnContext(xCoords, yCoords, zCoords, colors, $scope.formula1, context);
+        buildPointsFromContext(xCoords, yCoords, zCoords, colors, $scope.formula1, context);
         let data=[buildTrace(xCoords, yCoords, zCoords, colors, "Viridis", $scope.formula1, context)];
 
         if ($scope.formula2 !== undefined) {
@@ -27,13 +30,19 @@ app.controller("graphAppController", function ($scope){
             zCoords = [];
             colors = [];
             context = parseContext($scope.formula2);
-            buildPointsOnContext(xCoords, yCoords, zCoords, colors, $scope.formula2, context);
-            data.push(buildTrace(xCoords, yCoords, zCoords, colors, "Greys", $scope.formula2, context));
+            buildPointsFromContext(xCoords, yCoords, zCoords, colors, $scope.formula2, context);
+            data.push(buildTrace(xCoords, yCoords, zCoords, colors, "Earth", $scope.formula2, context));
         }
         Plotly.newPlot('graph', data);
     };
 
-    let buildPointsOnContext = function(xCoords, yCoords, zCoords, colors, formula, context){
+    $scope.keyPressed = function(event){
+      if (event.keyCode === 13){
+          $scope.graphFunction();
+      }
+    };
+
+    let buildPointsFromContext = function(xCoords, yCoords, zCoords, colors, formula, context){
         if (context === "x"){
             buildPoints(xCoords, yCoords, zCoords, colors, formula, context, parseFloat($scope.zmax), parseFloat($scope.zmin),
                 parseFloat($scope.ymax), parseFloat($scope.ymin), parseFloat($scope.xmax), parseFloat($scope.xmin),
