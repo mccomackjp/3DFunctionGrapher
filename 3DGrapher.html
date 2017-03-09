@@ -14,11 +14,15 @@
 <body ng-app="graphApp">
 <div id="graph" style="width:100%;height:100%;"></div>
 
-<div id="container" ng-controller="graphAppController">
+<div id="container" class="container-fluid" ng-controller="graphAppController">
+    <!-- function input -->
+    <p>Input a function, such as x^2+y^2, x=z^2+y or y=z+x^2</p>
     <label>Function one</label>
     <input type="text" ng-init="formula1='x^2+y^2'" ng-model="formula1" ng-keypress="keyPressed($event)" required><br>
     <label>Function two</label>
     <input type="text" ng-model="formula2" ng-keypress="keyPressed($event)">
+
+    <!-- min and max input fields -->
     <div id="minMax">
         <label>xmin</label><input type="text" ng-init="xmin='-1'" ng-model="xmin" ng-keypress="keyPressed($event)" required>
         <label>xmax</label><input type="text" ng-init="xmax='1'" ng-model="xmax" ng-keypress="keyPressed($event)" required><br>
@@ -27,9 +31,16 @@
         <label>zmin</label><input type="text" ng-init="zmin='-2'" ng-model="zmin" ng-keypress="keyPressed($event)" required>
         <label>zmax</label><input type="text" ng-init="zmax='2'" ng-model="zmax" ng-keypress="keyPressed($event)" required>
     </div>
+
+    <!-- button input -->
     <input type="button" value="Graph" class="btn btn-primary" ng-click="graphFunction()">
     <input type="button" value="Graph Intersect" class="btn btn-primary" ng-click="graphIntersection()"><br>
-    <label ng-model="errorMessage"></label>
+    <label ng-model="warning" ng-show="error" class="label label-warning">An error occurred: {{reason}}</label>
+
+    <footer>
+        <p class="text-muted">Powered by <a href="https://plot.ly/javascript/">plotly.js</a> and
+            <a href="http://mathjs.org/index.html">mathjs</a>.</p>
+    </footer>
 </div>
 </body>
 </html>

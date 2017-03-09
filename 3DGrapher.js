@@ -11,6 +11,9 @@ window.onload = function () {
 
 app.controller("graphAppController", function ($scope){
 
+    //todo add instructions
+    //todo add error checking
+    //todo add error message display
     //todo add intersection display
     //todo add bounded functions
 
@@ -22,20 +25,25 @@ app.controller("graphAppController", function ($scope){
         let zCoords = [];
         let colors = [];
 
-        let context = parseContext($scope.formula1);
-        buildPointsFromContext(xCoords, yCoords, zCoords, colors, $scope.formula1, context);
-        let data=[buildTrace(xCoords, yCoords, zCoords, colors, "Viridis", $scope.formula1, context)];
+        try {
+            let context = parseContext($scope.formula1);
+            buildPointsFromContext(xCoords, yCoords, zCoords, colors, $scope.formula1, context);
+            let data = [buildTrace(xCoords, yCoords, zCoords, colors, "Viridis", $scope.formula1, context)];
 
-        if ($scope.formula2 !== undefined) {
-            xCoords = [];
-            yCoords = [];
-            zCoords = [];
-            colors = [];
-            context = parseContext($scope.formula2);
-            buildPointsFromContext(xCoords, yCoords, zCoords, colors, $scope.formula2, context);
-            data.push(buildTrace(xCoords, yCoords, zCoords, colors, "Earth", $scope.formula2, context));
+            if ($scope.formula2 !== undefined) {
+                xCoords = [];
+                yCoords = [];
+                zCoords = [];
+                colors = [];
+                context = parseContext($scope.formula2);
+                buildPointsFromContext(xCoords, yCoords, zCoords, colors, $scope.formula2, context);
+                data.push(buildTrace(xCoords, yCoords, zCoords, colors, "Earth", $scope.formula2, context));
+            }
+            Plotly.newPlot('graph', data);
+            $scope.error = false;
+        } catch (error){
+            handleError(error);
         }
-        Plotly.newPlot('graph', data);
     };
 
     $scope.keyPressed = function(event){
@@ -44,18 +52,23 @@ app.controller("graphAppController", function ($scope){
       }
     };
 
-    //todo
+    //todo graph only intersecting functions
     $scope.graphIntersection = function(){
         //todo
     };
 
+    let handleError = function(error){
+        $scope.reason = error.message;
+        $scope.error = true;
+    };
+
     let buildPointsFromContext = function(xCoords, yCoords, zCoords, colors, formula, context){
-        if (context === "x"){
+        if (context === "x") {
             buildPoints(xCoords, yCoords, zCoords, colors, formula, context, parseFloat($scope.zmax), parseFloat($scope.zmin),
                 parseFloat($scope.ymax), parseFloat($scope.ymin), parseFloat($scope.xmax), parseFloat($scope.xmin),
                 (Math.abs(parseFloat($scope.zmin)) + Math.abs(parseFloat($scope.zmax))) * pointDistanceScalar,
                 (Math.abs(parseFloat($scope.ymin)) + Math.abs(parseFloat($scope.ymax))) * pointDistanceScalar);
-        } else if (context === "y"){
+        } else if (context === "y") {
             buildPoints(xCoords, yCoords, zCoords, colors, formula, context, parseFloat($scope.xmax), parseFloat($scope.xmin),
                 parseFloat($scope.zmax), parseFloat($scope.zmin), parseFloat($scope.ymax), parseFloat($scope.ymin),
                 (Math.abs(parseFloat($scope.xmin)) + Math.abs(parseFloat($scope.xmax))) * pointDistanceScalar,
@@ -84,8 +97,16 @@ app.controller("graphAppController", function ($scope){
     };
 
     let parseContext = function(formula){
-      formula = formula.replace(" ", "").toLowerCase();
-      return (formula.length > 1 && (formula[0] === "x" || formula[0] === "y") && formula[1] === "=") ? formula[0] : "z";
+      if (formula !== undefined) {
+          formula = formula.replace(" ", "").toLowerCase();
+          return (formula.length > 1 && (formula[0] === "x" || formula[0] === "y") && formula[1] === "=") ? formula[0] : "z";
+      } else {
+          throwException("Please input a valid function");
+      }
+    };
+
+    let throwException = function(message){
+      throw {message: message};
     };
 
     let buildScope = function (context, i, j){
