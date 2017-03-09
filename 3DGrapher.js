@@ -6,11 +6,12 @@
 let app = angular.module("graphApp", ["ui.bootstrap"]);
 
 window.onload = function () {
-  angular.element(document.getElementById("container")).scope().graphFunction();
+  angular.element(document.getElementById("container")).scope().graphAll();
 };
 
 app.controller("graphAppController", function ($scope){
 
+    //todo move footer to bottom of page
     //todo add instructions
     //todo add error checking
     //todo add error message display
@@ -19,7 +20,24 @@ app.controller("graphAppController", function ($scope){
 
     let pointDistanceScalar = 0.01;
 
-    $scope.graphFunction = function(){
+    let hideNonIntersect = false;
+
+    //todo graph only intersecting functions. Troubleshoot
+    $scope.graphIntersection = function(){
+        if ($scope.formula1 !== undefined && $scope.formula2 !== undefined) {
+            hideNonIntersect = true;
+            graphFunction();
+        } else {
+            handleError({message: "Please input two functions"});
+        }
+    };
+
+    $scope.graphAll = function(){
+        hideNonIntersect = false;
+        graphFunction();
+    };
+
+    let graphFunction = function(){
         let xCoords = [];
         let yCoords = [];
         let zCoords = [];
@@ -48,13 +66,8 @@ app.controller("graphAppController", function ($scope){
 
     $scope.keyPressed = function(event){
       if (event.keyCode === 13){
-          $scope.graphFunction();
+          $scope.graphAll();
       }
-    };
-
-    //todo graph only intersecting functions
-    $scope.graphIntersection = function(){
-        //todo
     };
 
     let handleError = function(error){
@@ -85,15 +98,54 @@ app.controller("graphAppController", function ($scope){
         for (let i = xmin; i <xmax; i += incrimentX){
             for (let j = ymin; j < ymax; j += incrimentY){
                 let scope = buildScope(context, i, j);
-                let z = math.eval(formula, scope);
-                if (evalRange(z, zmin, zmax)){
+                let k = math.eval(formula, scope);
+                if (evalRange(k, zmin, zmax) && isValidPoint(i, j, k, formula)){
                     xCoords.push(i);
                     yCoords.push(j);
-                    zCoords.push(z);
-                    colors.push(z);
+                    zCoords.push(k);
+                    colors.push(k);
                 }
             }
         }
+    };
+
+    let isValidPoint = function(i, j, k, formula){
+      let result = true;
+      if (hideNonIntersect){
+          formula = getOtherFormula(formula);
+          result = evaluatePointWithContext(i, j, k, formula)
+      }
+      return result;
+    };
+
+    //todo add aditional parameters for intersection hiding
+    let evaluatePointWithContext = function(i, j, k, formula){
+      let context = parseContext(formula);
+      let result = false;
+      switch (context) {
+          case 'x' : result = i >= math.eval(formula, buildScope(context, k, j));
+            break;
+          case 'y' : result = j >= math.eval(formula, buildScope(context, i, k));
+            break;
+          case 'z' : result = k >= math.eval(formula, buildScope(context, i, j));
+      }
+      return result;
+    };
+
+
+
+    let buildScope = function (context, i, j){
+        let scope = {x: i, y: j};
+        switch (context) {
+            case 'x' : scope = {z: i, y: j};
+                break;
+            case 'y' : scope = {x: i, z: j};
+        }
+        return scope;
+    };
+
+    let getOtherFormula = function(formula){
+        return (formula === $scope.formula1) ? $scope.formula2 : $scope.formula1;
     };
 
     let parseContext = function(formula){
@@ -107,16 +159,6 @@ app.controller("graphAppController", function ($scope){
 
     let throwException = function(message){
       throw {message: message};
-    };
-
-    let buildScope = function (context, i, j){
-        let scope = {x: i, y: j};
-        switch (context) {
-            case 'x' : scope = {z: i, y: j};
-            break;
-            case 'y' : scope = {x: i, z: j};
-        }
-        return scope;
     };
 
     let evalRange = function(num, min, max){
